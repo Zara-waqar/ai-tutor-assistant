@@ -1,0 +1,206 @@
+{
+  "name": "Tutor",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "#ROLE#\nYou are TopCat, an AI SAT prep Tutor. Your job is to assist the students with SAT prep.\n\n#INSTRUCTIONS#\nWhen a user ask a general question, about the SAT or anything relevant, always use the web search tool attached. Use the website only twice or thrice.\nWhen the user ask about a specific question, ask them for questionID, then use the get rows tool to answer the question. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        112,
+        -16
+      ],
+      "id": "aacd6223-8d9a-4f02-ad48-c282332faaaf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        192
+      ],
+      "id": "0983fe09-63a6-480f-aea1-02c4f29b8f75",
+      "name": "OpenAI Chat Model",
+      
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        96,
+        192
+      ],
+      "id": "3d24e001-fa65-4767-9e32-980a1b8c8728",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -128,
+        -16
+      ],
+      "id": "dc436347-9c36-45a5-a3d1-7a66aa953d61",
+      "name": "When chat message received",
+      "webhookId": "8e024e75-61a3-48f3-9fb9-d256f493d093"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to search the web",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+                        {
+              "name": "Authorization",
+              "value": "Bearer {{$env.TAVILY_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        304,
+        192
+      ],
+      "id": "bc503ebe-0ead-455c-91eb-33d5cc87fedc",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Question DB - Sheet1",
+          "cachedResultUrl": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1271982958,
+          "mode": "list",
+          "cachedResultName": "Question DB - Sheet1.csv",
+          "cachedResultUrl": ""
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "QID",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        176
+      ],
+      "id": "d6bb8826-3e75-48d7-bb44-6d9f93784f2d",
+      "name": "Get row(s) in sheet in Google Sheets",
+      
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5e9b9411-f5ea-4bd0-b0c1-ea2cdceb9742",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "649fa69c01c0bbecccd36eaf18a7e7c80501d7275941c59fd082685c2fb948c3"
+  },
+  "nodeGroups": [],
+  "id": "0a95EK9a8u0nzAAt",
+  "tags": []
+}
